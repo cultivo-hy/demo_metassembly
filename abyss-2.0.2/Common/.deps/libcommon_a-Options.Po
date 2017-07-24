@@ -1,0 +1,6 @@
+libcommon_a-Options.o: Options.cpp /usr/include/stdc-predef.h \
+ ../Common/Options.h
+
+/usr/include/stdc-predef.h:
+
+../Common/Options.h:

@@ -1,0 +1,278 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+</head>
+<body>
+<h1 id="abyss">ABySS</h1>
+<p>ABySS is a <em>de novo</em> sequence assembler intended for short paired-end reads and large genomes.</p>
+<h1 id="contents">Contents</h1>
+<ul>
+<li><a href="#quick-start">Quick Start</a>
+<ul>
+<li><a href="#install-abyss-on-debian-or-ubuntu">Install ABySS on Debian or Ubuntu</a></li>
+<li><a href="#install-abyss-on-mac-os-x">Install ABySS on Mac OS X</a></li>
+</ul></li>
+<li><a href="#dependencies">Dependencies</a></li>
+<li><a href="#compiling-abyss-from-github">Compiling ABySS from GiHub</a></li>
+<li><a href="#compiling-abyss-from-source">Compiling ABySS from source</a></li>
+<li><a href="#assembling-a-paired-end-library">Assembling a paired-end library</a></li>
+<li><a href="#assembling-multiple-libraries">Assembling multiple libraries</a></li>
+<li><a href="#scaffolding">Scaffolding</a></li>
+<li><a href="#rescaffolding-with-long-sequences">Rescaffolding with long sequences</a></li>
+<li><a href="#assembling-using-a-bloom-filter-de-bruijn-graph">Assembling using a Bloom filter de Bruijn graph</a></li>
+<li><a href="#assembling-using-a-paired-de-bruijn-graph">Assembling using a paired de Bruijn graph</a></li>
+<li><a href="#assembling-a-strand-specific-rna-seq-library">Assembling a strand-specific RNA-Seq library</a></li>
+<li><a href="#optimizing-the-parameter-k">Optimizing the parameter k</a></li>
+<li><a href="#parallel-processing">Parallel processing</a></li>
+<li><a href="#running-abyss-on-a-cluster">Running ABySS on a cluster</a></li>
+<li><a href="#using-the-dida-alignment-framework">Using the DIDA alignment framework</a></li>
+<li><a href="#assembly-parameters">Assembly Parameters</a></li>
+<li><a href="#abyss-programs">ABySS programs</a></li>
+<li><a href="#export-to-sqlite-database">Export to SQLite Database</a></li>
+<li><a href="#publications">Publications</a></li>
+<li><a href="#support">Support</a></li>
+<li><a href="#authors">Authors</a></li>
+</ul>
+<h1 id="quick-start">Quick Start</h1>
+<h2 id="install-abyss-on-debian-or-ubuntu">Install ABySS on Debian or Ubuntu</h2>
+<p>Run the command</p>
+<pre><code>sudo apt-get install abyss</code></pre>
+<p>or download and install the <a href="http://www.bcgsc.ca/platform/bioinfo/software/abyss">Debian package</a>.</p>
+<h2 id="install-abyss-on-mac-os-x">Install ABySS on Mac OS X</h2>
+<p>Install <a href="http://brew.sh/">Homebrew</a>, and run the commands</p>
+<pre><code>brew install homebrew/science/abyss</code></pre>
+<h2 id="assemble-a-small-synthetic-data-set">Assemble a small synthetic data set</h2>
+<pre><code>wget http://www.bcgsc.ca/platform/bioinfo/software/abyss/releases/1.3.4/test-data.tar.gz
+tar xzvf test-data.tar.gz
+abyss-pe k=25 name=test \
+    in=&#39;test-data/reads1.fastq test-data/reads2.fastq&#39;</code></pre>
+<h2 id="calculate-assembly-contiguity-statistics">Calculate assembly contiguity statistics</h2>
+<pre><code>abyss-fac test-unitigs.fa</code></pre>
+<h1 id="dependencies">Dependencies</h1>
+<p>ABySS requires the following libraries:</p>
+<ul>
+<li><a href="http://www.boost.org/">Boost</a></li>
+<li><a href="http://www.open-mpi.org">Open MPI</a></li>
+<li><a href="https://code.google.com/p/sparsehash/">sparsehash</a></li>
+<li><a href="http://www.sqlite.org/">SQLite</a></li>
+</ul>
+<p>ABySS requires a C++ compiler that supports <a href="http://www.openmp.org">OpenMP</a> such as <a href="http://gcc.gnu.org">GCC</a>.</p>
+<p>ABySS will receive an error when compiling with Boost 1.51.0 or 1.52.0 since they contain a bug. Later versions of Boost compile without error.</p>
+<h1 id="compiling-abyss-from-github">Compiling ABySS from GitHub</h1>
+<p>When installing ABySS from GitHub source the following tools are required:</p>
+<ul>
+<li><a href="http://www.gnu.org/software/autoconf">Autoconf</a></li>
+<li><a href="http://www.gnu.org/software/automake">Automake</a></li>
+</ul>
+<p>To generate the configure script and make files:</p>
+<pre><code>./autogen.sh</code></pre>
+<p>See &quot;Compiling ABySS from source&quot; for further steps.</p>
+<h1 id="compiling-abyss-from-source">Compiling ABySS from source</h1>
+<p>To compile and install ABySS in <code>/usr/local</code>:</p>
+<pre><code>./configure
+make
+sudo make install</code></pre>
+<p>To install ABySS in a specified directory:</p>
+<pre><code>./configure --prefix=/opt/abyss
+make
+sudo make install</code></pre>
+<p>ABySS uses OpenMP for parallelization, which requires a modern compiler such as GCC 4.2 or greater. If you have an older compiler, it is best to upgrade your compiler if possible. If you have multiple versions of GCC installed, you can specify a different compiler:</p>
+<pre><code>./configure CC=gcc-4.6 CXX=g++-4.6</code></pre>
+<p>ABySS requires the Boost C++ libraries. Many systems come with Boost installed. If yours does not, you can download <a href="http://www.boost.org/users/download">Boost</a>. It is not necessary to compile Boost before installing it. The Boost header file directory should be found at <code>/usr/include/boost</code>, in the ABySS source directory, or its location specified to <code>configure</code>:</p>
+<pre><code>./configure --with-boost=/usr/local/include</code></pre>
+<p>If you wish to build the parallel assembler with MPI support, MPI should be found in <code>/usr/include</code> and <code>/usr/lib</code> or its location specified to <code>configure</code>:</p>
+<pre><code>./configure --with-mpi=/usr/lib/openmpi</code></pre>
+<p>ABySS should be built using the sparsehash library to reduce memory usage, although it will build without. sparsehash should be found in <code>/usr/include</code> or its location specified to <code>configure</code>:</p>
+<pre><code>./configure CPPFLAGS=-I/usr/local/include</code></pre>
+<p>If SQLite is installed in non-default directories, its location can be specified to <code>configure</code>:</p>
+<pre><code>./configure --with-sqlite=/opt/sqlite3</code></pre>
+<p>The default maximum k-mer size is 64 and may be decreased to reduce memory usage or increased at compile time. This value must be a multiple of 32 (i.e. 32, 64, 96, 128, etc):</p>
+<pre><code>./configure --enable-maxk=96</code></pre>
+<p>If you encounter compiler warnings, you may ignore them like so:</p>
+<pre><code>make AM_CXXFLAGS=-Wall</code></pre>
+<p>To run ABySS, its executables should be found in your <code>PATH</code>. If you installed ABySS in <code>/opt/abyss</code>, add <code>/opt/abyss/bin</code> to your <code>PATH</code>:</p>
+<pre><code>PATH=/opt/abyss/bin:$PATH</code></pre>
+<h1 id="assembling-a-paired-end-library">Assembling a paired-end library</h1>
+<p>To assemble paired reads in two files named <code>reads1.fa</code> and <code>reads2.fa</code> into contigs in a file named <code>ecoli-contigs.fa</code>, run the command:</p>
+<pre><code>abyss-pe name=ecoli k=64 in=&#39;reads1.fa reads2.fa&#39;</code></pre>
+<p>The parameter <code>in</code> specifies the input files to read, which may be in FASTA, FASTQ, qseq, export, SRA, SAM or BAM format and compressed with gz, bz2 or xz and may be tarred. The assembled contigs will be stored in <code>${name}-contigs.fa</code>.</p>
+<p>A pair of reads must be named with the suffixes <code>/1</code> and <code>/2</code> to identify the first and second read, or the reads may be named identically. The paired reads may be in separate files or interleaved in a single file.</p>
+<p>Reads without mates should be placed in a file specified by the parameter <code>se</code> (single-end). Reads without mates in the paired-end files will slow down the paired-end assembler considerably during the <code>abyss-fixmate</code> stage.</p>
+<h1 id="assembling-multiple-libraries">Assembling multiple libraries</h1>
+<p>The distribution of fragment sizes of each library is calculated empirically by aligning paired reads to the contigs produced by the single-end assembler, and the distribution is stored in a file with the extension <code>.hist</code>, such as <code>ecoli-3.hist</code>. The N50 of the single-end assembly must be well over the fragment-size to obtain an accurate empirical distribution.</p>
+<p>Here's an example scenario of assembling a data set with two different fragment libraries and single-end reads. Note that the names of the libraries (<code>pea</code> and <code>peb</code>) are arbitrary.</p>
+<ul>
+<li>Library <code>pea</code> has reads in two files, <code>pea_1.fa</code> and <code>pea_2.fa</code>.</li>
+<li>Library <code>peb</code> has reads in two files, <code>peb_1.fa</code> and <code>peb_2.fa</code>.</li>
+<li>Single-end reads are stored in two files, <code>se1.fa</code> and <code>se2.fa</code>.</li>
+</ul>
+<p>The command line to assemble this example data set is:</p>
+<pre><code>abyss-pe k=64 name=ecoli lib=&#39;pea peb&#39; \
+    pea=&#39;pea_1.fa pea_2.fa&#39; peb=&#39;peb_1.fa peb_2.fa&#39; \
+    se=&#39;se1.fa se2.fa&#39;</code></pre>
+<p>The empirical distribution of fragment sizes will be stored in two files named <code>pea-3.hist</code> and <code>peb-3.hist</code>. These files may be plotted to check that the empirical distribution agrees with the expected distribution. The assembled contigs will be stored in <code>${name}-contigs.fa</code>.</p>
+<h1 id="scaffolding">Scaffolding</h1>
+<p>Long-distance mate-pair libraries may be used to scaffold an assembly. Specify the names of the mate-pair libraries using the parameter <code>mp</code>. The scaffolds will be stored in the file <code>${name}-scaffolds.fa</code>. Here's an example of assembling a data set with two paired-end libraries and two mate-pair libraries. Note that the names of the libraries (<code>pea</code>, <code>peb</code>, <code>mpa</code>, <code>mpb</code>) are arbitrary.</p>
+<pre><code>abyss-pe k=64 name=ecoli lib=&#39;pea peb&#39; mp=&#39;mpc mpd&#39; \
+    pea=&#39;pea_1.fa pea_2.fa&#39; peb=&#39;peb_1.fa peb_2.fa&#39; \
+    mpc=&#39;mpc_1.fa mpc_2.fa&#39; mpd=&#39;mpd_1.fa mpd_2.fa&#39;</code></pre>
+<p>The mate-pair libraries are used only for scaffolding and do not contribute towards the consensus sequence.</p>
+<h1 id="rescaffolding-with-long-sequences">Rescaffolding with long sequences</h1>
+<p>Long sequences such as RNA-Seq contigs can be used to rescaffold an assembly. Sequences are aligned using BWA-MEM to the assembled scaffolds. Additional scaffolds are then formed between scaffolds that can be linked unambiguously when considering all BWA-MEM alignments.</p>
+<p>Similar to scaffolding, the names of the datasets can be specified with the <code>long</code> parameter. These scaffolds will be stored in the file <code>${name}-trans-scaffs.fa</code>. The following is an example of an assembly with PET, MPET and an RNA-Seq assembly. Note that the names of the libraries are arbitrary.</p>
+<pre><code>abyss-pe k=64 name=ecoli lib=&#39;pe1 pe2&#39; mp=&#39;mp1 mp2&#39; long=&#39;longa&#39; \
+    pe1=&#39;pe1_1.fa pe1_2.fa&#39; pe2=&#39;pe2_1.fa pe2_2.fa&#39; \
+    mp1=&#39;mp1_1.fa mp1_2.fa&#39; mp2=&#39;mp2_1.fa mp2_2.fa&#39; \
+    longa=&#39;longa.fa&#39;</code></pre>
+<h1 id="assembling-using-a-bloom-filter-de-bruijn-graph">Assembling using a Bloom filter de Bruijn graph</h1>
+<p>Assemblies may be performed using a <em>Bloom filter de Bruijn graph</em>, which typically reduces memory requirements by an order of magnitude. To assemble in Bloom filter mode, the user must specify 3 additional parameters: <code>B</code> (Bloom filter size in bytes), <code>H</code> (number of Bloom filter hash functions), and <code>kc</code> (minimum k-mer count threshold). <code>B</code> is the overall memory budget for the Bloom filter assembler, and may be specified with unit suffixes 'k' (kilobytes), 'M' (megabytes), 'G' (gigabytes). If no units are specified bytes are assumed. For example, the following will run a E. coli assembly with an overall memory budget of 100 megabytes, 3 hash functions, a minimum k-mer count threshold of 3, with verbose logging enabled:</p>
+<pre><code>abyss-pe name=ecoli k=64 in=&#39;reads1.fa reads2.fa&#39; B=100M H=3 kc=3 v=-v</code></pre>
+<p>At the current time, the user must calculate suitable values for <code>B</code> and <code>H</code> on their own, and finding the best value for <code>kc</code> may require experimentation (optimal values are typically in the range of 2-4). Internally, the Bloom filter assembler divides the memory budget (<code>B</code>) equally across (<code>kc</code> + 1) Bloom filters, where <code>kc</code> Bloom filters are used for the cascading Bloom filter and one additional Bloom filter is used to track k-mers that have previously been included in contigs. Users are recommended to target a Bloom filter false positive rate (FPR) that is less than 5%, as reported by the assembly log when using the <code>v=-v</code> option (verbose level 1).</p>
+<h1 id="assembling-using-a-paired-de-bruijn-graph">Assembling using a paired de Bruijn graph</h1>
+<p>Assemblies may be performed using a <em>paired de Bruijn graph</em> instead of a standard de Bruijn graph. In paired de Bruijn graph mode, ABySS uses <em>k-mer pairs</em> in place of k-mers, where each k-mer pair consists of two equal-size k-mers separated by a fixed distance. A k-mer pair is functionally similar to a large k-mer spanning the breadth of the k-mer pair, but uses less memory because the sequence in the gap is not stored. To assemble using paired de Bruijn graph mode, specify both individual k-mer size (<code>K</code>) and k-mer pair span (<code>k</code>). For example, to assemble E. coli with a individual k-mer size of 16 and a k-mer pair span of 64:</p>
+<pre><code>abyss-pe name=ecoli K=16 k=64 in=&#39;reads1.fa reads2.fa&#39;</code></pre>
+<p>In this example, the size of the intervening gap between k-mer pairs is 32 bp (64 - 2*16). Note that the <code>k</code> parameter takes on a new meaning in paired de Bruijn graph mode. <code>k</code> indicates kmer pair span in paired de Bruijn graph mode (when <code>K</code> is set), whereas <code>k</code> indicates k-mer size in standard de Bruijn graph mode (when <code>K</code> is not set).</p>
+<h1 id="assembling-a-strand-specific-rna-seq-library">Assembling a strand-specific RNA-Seq library</h1>
+<p>Strand-specific RNA-Seq libraries can be assembled such that the resulting unitigs, contigs and scaffolds are oriented correctly with respect to the original transcripts that were sequenced. In order to run ABySS in strand-specific mode, the <code>SS</code> parameter must be used as in the following example:</p>
+<pre><code>abyss-pe name=SS-RNA k=64 in=&#39;reads1.fa reads2.fa&#39; SS=--SS</code></pre>
+<p>The expected orientation for the read sequences with respect to the original RNA is RF. i.e. the first read in a read pair is always in reverse orientation.</p>
+<h1 id="optimizing-the-parameter-k">Optimizing the parameter k</h1>
+<p>To find the optimal value of <code>k</code>, run multiple assemblies and inspect the assembly contiguity statistics. The following shell snippet will assemble for every eighth value of <code>k</code> from 50 to 90.</p>
+<pre><code>for k in `seq 50 8 90`; do
+    mkdir k$k
+    abyss-pe -C k$k name=ecoli k=$k in=../reads.fa
+done
+abyss-fac k*/ecoli-contigs.fa</code></pre>
+<p>The default maximum value for <code>k</code> is 96. This limit may be changed at compile time using the <code>--enable-maxk</code> option of configure. It may be decreased to 32 to decrease memory usage or increased to larger values.</p>
+<h1 id="parallel-processing">Parallel processing</h1>
+<p>The <code>np</code> option of <code>abyss-pe</code> specifies the number of processes to use for the parallel MPI job. Without any MPI configuration, this will allow you to use multiple cores on a single machine. To use multiple machines for assembly, you must create a <code>hostfile</code> for <code>mpirun</code>, which is described in the <code>mpirun</code> man page.</p>
+<p><em>Do not</em> run <code>mpirun -np 8 abyss-pe</code>. To run ABySS with 8 threads, use <code>abyss-pe np=8</code>. The <code>abyss-pe</code> driver script will start the MPI process, like so: <code>mpirun -np 8 ABYSS-P</code>.</p>
+<p>The paired-end assembly stage is multithreaded, but must run on a single machine. The number of threads to use may be specified with the parameter <code>j</code>. The default value for <code>j</code> is the value of <code>np</code>.</p>
+<h1 id="running-abyss-on-a-cluster">Running ABySS on a cluster</h1>
+<p>ABySS integrates well with cluster job schedulers, such as:</p>
+<ul>
+<li>SGE (Sun Grid Engine)</li>
+<li>Portable Batch System (PBS)</li>
+<li>Load Sharing Facility (LSF)</li>
+<li>IBM LoadLeveler</li>
+</ul>
+<p>For example, to submit an array of jobs to assemble every eighth value of <code>k</code> between 50 and 90 using 64 processes for each job:</p>
+<pre><code>qsub -N ecoli -pe openmpi 64 -t 50-90:8 \
+    &lt;&lt;&lt;&#39;mkdir k$SGE_TASK_ID &amp;&amp; abyss-pe -C k$SGE_TASK_ID in=/data/reads.fa&#39;</code></pre>
+<h1 id="using-the-dida-alignment-framework">Using the DIDA alignment framework</h1>
+<p>ABySS supports the use of DIDA (Distributed Indexing Dispatched Alignment), an MPI-based framework for computing sequence alignments in parallel across multiple machines. The DIDA software must be separately downloaded and installed from http://www.bcgsc.ca/platform/bioinfo/software/dida. In comparison to the standard ABySS alignment stages which are constrained to a single machine, DIDA offers improved performance and the ability to scale to larger targets. Please see the DIDA section of the abyss-pe man page (in the <code>doc</code> subdirectory) for details on usage.</p>
+<h1 id="assembly-parameters">Assembly Parameters</h1>
+<p>Parameters of the driver script, <code>abyss-pe</code></p>
+<ul>
+<li><code>a</code>: maximum number of branches of a bubble [<code>2</code>]</li>
+<li><code>b</code>: maximum length of a bubble (bp) [<code>&quot;&quot;</code>]</li>
+<li><code>B</code>: Bloom filter size (e.g. &quot;100M&quot;)</li>
+<li><code>c</code>: minimum mean k-mer coverage of a unitig [<code>sqrt(median)</code>]</li>
+<li><code>d</code>: allowable error of a distance estimate (bp) [<code>6</code>]</li>
+<li><code>e</code>: minimum erosion k-mer coverage [<code>round(sqrt(median))</code>]</li>
+<li><code>E</code>: minimum erosion k-mer coverage per strand [1 if sqrt(median) &gt; 2 else 0]</li>
+<li><code>G</code>: genome size, used to calculate NG50 [disabled]</li>
+<li><code>H</code>: number of Bloom filter hash functions [1]</li>
+<li><code>j</code>: number of threads [<code>2</code>]</li>
+<li><code>k</code>: size of k-mer (when <code>K</code> is not set) or the span of a k-mer pair (when <code>K</code> is set)</li>
+<li><code>kc</code>: minimum k-mer count threshold for Bloom filter assembly [<code>2</code>]</li>
+<li><code>K</code>: the length of a single k-mer in a k-mer pair (bp)</li>
+<li><code>l</code>: minimum alignment length of a read (bp) [<code>40</code>]</li>
+<li><code>m</code>: minimum overlap of two unitigs (bp) [<code>30</code>]</li>
+<li><code>n</code>: minimum number of pairs required for building contigs [<code>10</code>]</li>
+<li><code>N</code>: minimum number of pairs required for building scaffolds [<code>n</code>]</li>
+<li><code>np</code>: number of MPI processes [<code>1</code>]</li>
+<li><code>p</code>: minimum sequence identity of a bubble [<code>0.9</code>]</li>
+<li><code>q</code>: minimum base quality [<code>3</code>]</li>
+<li><code>s</code>: minimum unitig size required for building contigs (bp) [<code>1000</code>]</li>
+<li><code>S</code>: minimum contig size required for building scaffolds (bp) [<code>1000-10000</code>]</li>
+<li><code>t</code>: maximum length of blunt contigs to trim [<code>k</code>]</li>
+<li><code>v</code>: use <code>v=-v</code> for verbose logging, <code>v=-vv</code> for extra verbose [<code>disabled</code>]</li>
+<li><code>x</code>: spaced seed (Bloom filter assembly only)</li>
+</ul>
+<p>Please see the <a href="http://manpages.ubuntu.com/abyss-pe.1.html">abyss-pe</a> manual page for more information on assembly parameters.</p>
+<h1 id="environment-variables">Environment variables</h1>
+<p><code>abyss-pe</code> configuration variables may be set on the command line or from the environment, for example with <code>export k=20</code>. It can happen that <code>abyss-pe</code> picks up such variables from your environment that you had not intended, and that can cause trouble. To troubleshoot that situation, use the <code>abyss-pe env</code> command to print the values of all the <code>abyss-pe</code> configuration variables:</p>
+<pre><code>abyss-pe env [options]</code></pre>
+<h1 id="abyss-programs">ABySS programs</h1>
+<p><code>abyss-pe</code> is a driver script implemented as a Makefile. Any option of <code>make</code> may be used with <code>abyss-pe</code>. Particularly useful options are:</p>
+<ul>
+<li><code>-C dir</code>, <code>--directory=dir</code> Change to the directory <code>dir</code> and store the results there.</li>
+<li><code>-n</code>, <code>--dry-run</code> Print the commands that would be executed, but do not execute them.</li>
+</ul>
+<p><code>abyss-pe</code> uses the following programs, which must be found in your <code>PATH</code>:</p>
+<ul>
+<li><code>ABYSS</code>: de Bruijn graph assembler</li>
+<li><code>ABYSS-P</code>: parallel (MPI) de Bruijn graph assembler</li>
+<li><code>AdjList</code>: find overlapping sequences</li>
+<li><code>DistanceEst</code>: estimate the distance between sequences</li>
+<li><code>MergeContigs</code>: merge sequences</li>
+<li><code>MergePaths</code>: merge overlapping paths</li>
+<li><code>Overlap</code>: find overlapping sequences using paired-end reads</li>
+<li><code>PathConsensus</code>: find a consensus sequence of ambiguous paths</li>
+<li><code>PathOverlap</code>: find overlapping paths</li>
+<li><code>PopBubbles</code>: remove bubbles from the sequence overlap graph</li>
+<li><code>SimpleGraph</code>: find paths through the overlap graph</li>
+<li><code>abyss-fac</code>: calculate assembly contiguity statistics</li>
+<li><code>abyss-filtergraph</code>: remove shim contigs from the overlap graph</li>
+<li><code>abyss-fixmate</code>: fill the paired-end fields of SAM alignments</li>
+<li><code>abyss-map</code>: map reads to a reference sequence</li>
+<li><code>abyss-scaffold</code>: scaffold contigs using distance estimates</li>
+<li><code>abyss-todot</code>: convert graph formats and merge graphs</li>
+</ul>
+<p>This <a href="https://github.com/bcgsc/abyss/blob/master/doc/flowchart.pdf">flowchart</a> shows the ABySS assembly pipeline its intermediate files.</p>
+<h1 id="export-to-sqlite-database">Export to SQLite Database</h1>
+<p>ABySS has a built-in support for SQLite database to export log values into a SQLite file and/or <code>.csv</code> files at runtime.</p>
+<h2 id="database-parameters">Database parameters</h2>
+<p>Of <code>abyss-pe</code>: * <code>db</code>: path to SQLite repository file [<code>$(name).sqlite</code>] * <code>species</code>: name of species to archive [ ] * <code>strain</code>: name of strain to archive [ ] * <code>library</code>: name of library to archive [ ]</p>
+<p>For example, to export data of species 'Ecoli', strain 'O121' and library 'pea' into your SQLite database repository named '/abyss/test.sqlite':</p>
+<pre><code>abyss-pe db=/abyss/test.sqlite species=Ecoli strain=O121 library=pea [other options]</code></pre>
+<h2 id="helper-programs">Helper programs</h2>
+<p>Found in your <code>path</code>: * <code>abyss-db-txt</code>: create a flat file showing entire repository at a glance * <code>abyss-db-csv</code>: create <code>.csv</code> table(s) from the repository</p>
+<p>Usage:</p>
+<pre><code>abyss-db-txt /your/repository
+abyss-db-csv /your/repository program(s)</code></pre>
+<p>For example,</p>
+<pre><code>abyss-db-txt repo.sqlite
+
+abyss-db-csv repo.sqlite DistanceEst
+abyss-db-csv repo.sqlite DistanceEst abyss-scaffold
+abyss-db-csv repo.sqlite --all</code></pre>
+<h1 id="publications">Publications</h1>
+<h2 id="abyss-1"><a href="http://genome.cshlp.org/content/19/6/1117">ABySS</a></h2>
+<p>Simpson, Jared T., Kim Wong, Shaun D. Jackman, Jacqueline E. Schein, Steven JM Jones, and Inanc Birol. <strong>ABySS: a parallel assembler for short read sequence data</strong>. <em>Genome research</em> 19, no. 6 (2009): 1117-1123. <a href="http://dx.doi.org/10.1101/gr.089532.108">doi:10.1101/gr.089532.108</a></p>
+<h2 id="trans-abyss"><a href="http://www.nature.com/nmeth/journal/v7/n11/abs/nmeth.1517.html">Trans-ABySS</a></h2>
+<p>Robertson, Gordon, Jacqueline Schein, Readman Chiu, Richard Corbett, Matthew Field, Shaun D. Jackman, Karen Mungall et al. <strong>De novo assembly and analysis of RNA-seq data</strong>. <em>Nature methods</em> 7, no. 11 (2010): 909-912. <a href="http://dx.doi.org/10.1038/nmeth.1517">doi:10.1038/10.1038/nmeth.1517</a></p>
+<h2 id="abyss-explorer"><a href="http://ieeexplore.ieee.org/xpls/abs_all.jsp?arnumber=5290690">ABySS-Explorer</a></h2>
+<p>Nielsen, Cydney B., Shaun D. Jackman, Inanc Birol, and Steven JM Jones. <strong>ABySS-Explorer: visualizing genome sequence assemblies</strong>. <em>IEEE Transactions on Visualization and Computer Graphics</em> 15, no. 6 (2009): 881-888. <a href="http://dx.doi.org/10.1109/TVCG.2009.116">doi:10.1109/TVCG.2009.116</a></p>
+<h1 id="support">Support</h1>
+<p><a href="https://www.biostars.org/p/new/post/?tag_val=abyss,assembly">Ask a question</a> on <a href="https://www.biostars.org/t/abyss/">Biostars</a>.</p>
+<p><a href="https://github.com/bcgsc/abyss/issues">Create a new issue</a> on GitHub.</p>
+<p>Subscribe to the [ABySS mailing list] (http://groups.google.com/group/abyss-users), <script type="text/javascript">
+<!--
+h='&#x67;&#x6f;&#x6f;&#x67;&#108;&#x65;&#x67;&#114;&#x6f;&#x75;&#112;&#x73;&#46;&#x63;&#x6f;&#x6d;';a='&#64;';n='&#x61;&#98;&#x79;&#x73;&#x73;&#x2d;&#x75;&#x73;&#x65;&#114;&#x73;';e=n+a+h;
+document.write('<a h'+'ref'+'="ma'+'ilto'+':'+e+'" clas'+'s="em' + 'ail">'+e+'<\/'+'a'+'>');
+// -->
+</script><noscript>&#x61;&#98;&#x79;&#x73;&#x73;&#x2d;&#x75;&#x73;&#x65;&#114;&#x73;&#32;&#x61;&#116;&#32;&#x67;&#x6f;&#x6f;&#x67;&#108;&#x65;&#x67;&#114;&#x6f;&#x75;&#112;&#x73;&#32;&#100;&#x6f;&#116;&#32;&#x63;&#x6f;&#x6d;</noscript>.</p>
+<p>For questions related to transcriptome assembly, contact the [Trans-ABySS mailing list] (http://groups.google.com/group/trans-abyss), <script type="text/javascript">
+<!--
+h='&#x67;&#x6f;&#x6f;&#x67;&#108;&#x65;&#x67;&#114;&#x6f;&#x75;&#112;&#x73;&#46;&#x63;&#x6f;&#x6d;';a='&#64;';n='&#116;&#114;&#x61;&#110;&#x73;&#x2d;&#x61;&#98;&#x79;&#x73;&#x73;';e=n+a+h;
+document.write('<a h'+'ref'+'="ma'+'ilto'+':'+e+'" clas'+'s="em' + 'ail">'+e+'<\/'+'a'+'>');
+// -->
+</script><noscript>&#116;&#114;&#x61;&#110;&#x73;&#x2d;&#x61;&#98;&#x79;&#x73;&#x73;&#32;&#x61;&#116;&#32;&#x67;&#x6f;&#x6f;&#x67;&#108;&#x65;&#x67;&#114;&#x6f;&#x75;&#112;&#x73;&#32;&#100;&#x6f;&#116;&#32;&#x63;&#x6f;&#x6d;</noscript>.</p>
+<h1 id="authors">Authors</h1>
+<ul>
+<li><strong><a href="http://sjackman.ca">Shaun Jackman</a></strong> - <a href="https://github.com/sjackman">GitHub/sjackman</a> - <span class="citation">[@sjackman]</span>(https://twitter.com/sjackman)</li>
+<li><strong>Tony Raymond</strong> - <a href="https://github.com/traymond">GitHub/traymond</a></li>
+<li><strong>Ben Vandervalk</strong> - <a href="https://github.com/benvvalk">GitHub/benvvalk</a></li>
+<li><strong>Jared Simpson</strong> - <a href="https://github.com/jts">GitHub/jts</a></li>
+</ul>
+<p>Supervised by <a href="http://www.bcgsc.ca/faculty/inanc-birol"><strong>Dr. Inanc Birol</strong></a>.</p>
+<p>Copyright 2016 Canada's Michael Smith Genome Sciences Centre</p>
+</body>
+</html>

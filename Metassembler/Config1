@@ -1,0 +1,35 @@
+#######################################################
+###   Metassemble configuration file suggested template
+#######################################################
+
+[global]
+
+#Mate-pair mapping parameters:
+bowtie2_threads=<int>
+bowtie2_read1=<path1>[,...,<pathN>]
+bowtie2_read2=<path1>[,...,<pathN>]
+bowtie2_maxins=<int>
+bowtie2_minins=<int>
+
+#CE-stat computation parameters:
+mateAn_A=<int>
+mateAn_B=<int>
+#Or:
+#mateAn_s=<float>
+#mateAn_m=<float>
+
+#Whole Genome Alignment parametesr:
+nucmer_l=<int>
+nucmer_c=<int>
+
+[1]
+
+fasta=<path>
+ID=<string>
+#mateAn_file=<path>
+
+[2]
+
+fasta=<path>
+ID=<string>
+#mateAn_file=<path>

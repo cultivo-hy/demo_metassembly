@@ -1,0 +1,66 @@
+METASSEMBLER:
+-------------
+
+Typically de novo genome sequencing projects generate multiple assemblies of the same sample using 
+different software and/or different parameters of the same software. Instead of discarding the 
+extra assemblies, Metassembler merges them to the top assembly using mate-pair information and 
+whole-genome alignments, in order to generate a single superior assembly. The final assembly will 
+combine the best locally superior assemblies throughout the genome.
+
+INSTALLATION:
+-------------
+
+Metassembler requires the following external programs to be installed:
+1) MUMmer whole genome alignment package
+2) bowtie2
+3) samtools
+4) python
+5) perl
+
+The 'argparse' python module must also be installed: https://pypi.python.org/pypi/argparse
+For general instructions on installing python packages in standard and non-standard locations
+please refer to: http://docs.python.org/2/install/
+
+The 'Statistics::Descriptive' perl module must also be installed: 
+http://search.cpan.org/~shlomif/Statistics-Descriptive-3.0608/lib/Statistics/Descriptive.pm
+
+If these requirements are met then, under unix like systems, type 'make install' within the Metassembler 
+root directory. Finally, make the binary files visible to your PATH environmental variable.
+
+Paths to the binaries present at the moment of installation will be used by default. If paths cannot
+be found at the moment of installation then they must be present in the PATH environmental variable
+at the moment of metassemble execution or must be provided through the input configuration file (see
+MANUAL).
+
+SAMPLE DATA:
+------------
+
+A sample data is provided for testing the installation and for familiarizing with Metassembler. It 
+consists of two alternate assemblies A.fa and B.fa generated from the first ~250kb Staphylococcus 
+Aureus genome with some differences.
+
+There are two ways in which you can run the Metassembler, the easiest way is using the wrapper 
+'metassemble' which takes as input a configuration file.
+In Sample/meta1 run:
+     ./Metassemble_script.sh
+This will create a configuration file (B.A.metassemble.config) and run metassemble to merge A.fa 
+and B.fa into a single assembly. A directory MergeMetassemble/ will be created. This directory will 
+contain all the information used in the metassembly process as well ass the final results. The general 
+layout of the output directory and the description of the important files contained in it can be 
+found in the MANUAL. In particular, you will find a description of the *.metassem file which contains 
+instructions on how to construct the final metassembly sequence by concatenating sequences in the two 
+input assemblies.. In this sample data we expect that the metassembly sequence is composed of the 
+assembly A sequence intercalated with assembly B insertions. 
+
+
+The other way to perform the Metassembly is running all the processes step by step. 
+In Sample/meta1 run:
+     ./Step_by_Step_script.sh
+This will run each of processes in turn, including the computation of the CE-statistic for the 
+starting assemblies and the whole genome alignment using the nucmer program from the MUMmer package.
+
+The resulting metassembly should be a single contig with deletions present in assembly A corrected using 
+sequence from assembly B.
+
+Details on how to use the wrapper metassemble are given in MANUAL
+
