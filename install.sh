@@ -55,8 +55,8 @@ rm sratoolkit.current-centos_linux64.tar.gz
 #cd ./sratoolkit.2.8.2-1-centos_linux64/bin
 #./fastq-dump -I --split-files SRR800798
 #./changePairEndFormat.py
-#mkdir ~/data
-#mv SRR800798_* ~/data
+mkdir ~/data
+mv SRR800798_* ~/data
 # you need to change format to use pair-end format.
 # check github : https://github.com/cultivo-hy/demo_metassembly/dataFormat/changePairEndFormat.py
 # change mode and run ./changePairEndFormat.py. will get pair-end data
