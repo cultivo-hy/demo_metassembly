@@ -47,9 +47,11 @@ sudo make install
 sudo apt-get install abyss
 sudo apt-get update
 
+cd ~/tool
 # ==============================option_SRAtoolKit ==============================#
-#wget "ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sdk/current/sratoolkit.current-centos_linux64.tar.gz"
-#tar -xzf sratoolkit.current-centos_linux64.tar.gz
+wget "ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sdk/current/sratoolkit.current-centos_linux64.tar.gz"
+tar -xzf sratoolkit.current-centos_linux64.tar.gz
+rm sratoolkit.current-centos_linux64.tar.gz
 #cd ./sratoolkit.2.8.2-1-centos_linux64/bin
 #./fastq-dump -I --split-files SRR800798
 #./changePairEndFormat.py
@@ -79,7 +81,7 @@ cd ~
 #============================== Metassembly ==============================#
 wget https://downloads.sourceforge.net/project/metassembler/v1.5/Metassembler.1.5.tar.gz
 tar -xvf Metassembler.1.5.tar.gz
-
+rm Metassembler.1.5.tar.gz
 #============================== MUMmer ==============================#
 cd ~/tool
 wget https://downloads.sourceforge.net/project/mummer/mummer/3.23/MUMmer3.23.tar.gz
