@@ -4,6 +4,7 @@ f1 = open('../data/SRR800798_1.fastq', 'r')
 f2 = open('../data/SRR800798_1', 'w')
 bool = 1;
 for line in f1:
+    # this condition & do line should be changed to fit your data.
     if(bool % 2 == 1) :
         line = line[:11] + str(bool/4 +1) +'/1' + '\r\n'
     f2.write(line)
