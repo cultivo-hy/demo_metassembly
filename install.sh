@@ -126,11 +126,12 @@ cd ~/tool
 wget http://search.cpan.org/CPAN/authors/id/T/TO/TOBYINK/Exporter-Tiny-1.000000.tar.gz
 tar -xvf Exporter-Tiny-1.000000.tar.gz
 rm Exporter-Tiny-1.000000.tar.gz
-perl Makefile.PL
 cd Exporter-Tiny-1.000000
+perl Makefile.PL
 make
 sudo make install
 #======================[Statistics-Descript]=======================#
+cd ~/tool
 wget http://search.cpan.org/CPAN/authors/id/S/SH/SHLOMIF/Statistics-Descriptive-3.0612.tar.gz
 tar -xvf Statistics-Descriptive-3.0612.tar.gz
 rm Statistics-Descriptive-3.0612.tar.gz
@@ -140,8 +141,8 @@ perl Build.PL
 ./Build test
 sudo ./Build install
 
-cd ~
 #============================== Metassembly ==============================#
+cd ~
 wget https://downloads.sourceforge.net/project/metassembler/v1.5/Metassembler.1.5.tar.gz
 tar -xvf Metassembler.1.5.tar.gz
 rm Metassembler.1.5.tar.gz
