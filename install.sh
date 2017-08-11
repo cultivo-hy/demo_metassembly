@@ -82,6 +82,17 @@ sudo apt-get install csh
 sudo apt-get install mummer
 sudo apt-get update
 cd ~
+# if the size of your reference sequence is larger than is supported by default,install like this.
+# cd ~/tool
+# wget https://downloads.sourceforge.net/project/mummer/mummer/3.23/MUMmer3.23.tar.gz
+# tar -xvf MUMmer3.23.tar.gz
+# cd ./MUMmer3.23
+# make check
+# cd script
+# make
+# cd ..
+# make CPPFLAGS="-O3 -DSIXTYFOURBITS"   << this part make large genome process
+# sudo make install
 
 #============================== bowtie2 ==============================#
 sudo apt-get install bowtie2
